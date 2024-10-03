@@ -1,10 +1,12 @@
 class Database {
     async registerUser(username, password) {
+        console.log('Attempting register with:', username, password);
         const response = await fetch('https://php.aurorasigner.xyz/api.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'register', username, password }),
         });
+        console.log(response.json());
         const data = await response.json();
         return data.success;
     }

@@ -268,12 +268,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function registerUser(username, password) {
         try {
+            console.log('Attempting register with:', username, password);
             const response = await fetch('https://php.aurorasigner.xyz/api.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'register', username, password }),
             });
             const data = await response.json();
+            console.log(data)
             if (data.success) {
                 showNotification('Registration successful. You can now log in.', 'success');
                 // Instead of calling toggleAuthMode, we'll update the UI directly
