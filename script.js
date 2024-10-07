@@ -267,36 +267,49 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     async function registerUser(username, password) {
-        try {
-            console.log('Attempting register with:', username, password);
-            const response = await fetch('https://php.aurorasigner.xyz/api.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'register', username, password }),
-            });
-            const data = await response.json();
-            console.log(data)
-            if (data.success) {
-                showNotification('Registration successful. You can now log in.', 'success');
-                // Instead of calling toggleAuthMode, we'll update the UI directly
-                isLoginMode = true;
-                authTitle.textContent = "Login";
-                authSubmit.textContent = "Login";
-                authToggle.innerHTML = 'Don\'t have an account? <a href="#">Sign Up</a>';
-                privacyPolicyAgreement.style.display = "none";
-                agreePrivacyPolicyCheckbox.required = false;
-                return true;
-            } else {
-                console.error('Registration failed:', data.error);
-                showNotification(data.error || 'Registration failed. Please try again.', 'error');
-                return false;
-            }
-        } catch (error) {
-            console.error('Registration error:', error);
-            showNotification('An error occurred during registration. Please try again.', 'error');
+    // Basic validation
+    if (!username || !password) {
+        showNotification('Username and password are required.', 'error');
+        return false;
+    }
+
+    try {
+        console.log('Attempting register with:', username, password);
+        const response = await fetch('https://php.aurorasigner.xyz/api.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'register', username, password }),
+        });
+
+        // Check if the response is OK
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log(data);
+
+        if (data.success) {
+            showNotification('Registration successful. You can now log in.', 'success');
+            // Update UI directly
+            isLoginMode = true;
+            authTitle.textContent = "Login";
+            authSubmit.textContent = "Login";
+            authToggle.innerHTML = 'Don\'t have an account? <a href="#">Sign Up</a>';
+            privacyPolicyAgreement.style.display = "none";
+            agreePrivacyPolicyCheckbox.required = false;
+            return true;
+        } else {
+            console.error('Registration failed:', data.error);
+            showNotification(data.error || 'Registration failed. Please try again.', 'error');
             return false;
         }
+    } catch (error) {
+        console.error('Registration error:', error);
+        showNotification('An error occurred during registration. Please try again.', 'error');
+        return false;
     }
+}
 
     function checkLoginStatus() {
         const storedUser = localStorage.getItem('currentUser');
