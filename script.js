@@ -275,22 +275,22 @@ document.addEventListener("DOMContentLoaded", function () {
                 body: JSON.stringify({ action: 'register', username, password }),
             });
             const data = await response.json();
-            console.log(data)
-            if (data.success) {
-                showNotification('Registration successful. You can now log in.', 'success');
-                // Instead of calling toggleAuthMode, we'll update the UI directly
-                isLoginMode = true;
-                authTitle.textContent = "Login";
-                authSubmit.textContent = "Login";
-                authToggle.innerHTML = 'Don\'t have an account? <a href="#">Sign Up</a>';
-                privacyPolicyAgreement.style.display = "none";
-                agreePrivacyPolicyCheckbox.required = false;
-                return true;
-            } else {
-                console.error('Registration failed:', data.error);
-                showNotification(data.error || 'Registration failed. Please try again.', 'error');
-                return false;
-            }
+console.log(data);
+if (data.success) {
+    showNotification('Registration successful. You can now log in.', 'success');
+    // Instead of calling toggleAuthMode, we'll update the UI directly
+    isLoginMode = true;
+    authTitle.textContent = "Login";
+    authSubmit.textContent = "Login";
+    authToggle.innerHTML = 'Don\'t have an account? <a href="#">Sign Up</a>';
+    privacyPolicyAgreement.style.display = "none";
+    agreePrivacyPolicyCheckbox.required = false;
+    return true;
+} else {
+    console.error('Registration failed:', data); // Logs the full error details
+    showNotification(data.error || 'Registration failed. Please try again.', 'error');
+    return false;
+}Ï
         } catch (error) {
             console.error('Registration error:', error);
             showNotification('An error occurred during registration. Please try again.', 'error');
