@@ -269,7 +269,7 @@ document.addEventListener("DOMContentLoaded", function () {
         async function registerUser(username, password) {
         try {
             console.log('Attempting register with:', username, password);
-            const response = await fetch('https://php.aurorasigner.xyz/api.php', {
+            const response = await fetch('https://fb8c5bb14849.ngrok.app/api.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'register', username, password }),
