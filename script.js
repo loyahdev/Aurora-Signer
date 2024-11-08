@@ -90,75 +90,91 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     if (form) {
-        form.addEventListener("submit", async function (event) {
-            event.preventDefault();
-            if (!currentUser) {
-                showNotification("Please log in to sign IPAs", "error");
-                return;
-            }
-
-            // Check file sizes
-            const ipaFile = document.getElementById('ipa').files[0];
-            const maxSize = currentUser.premium ? 1.5 * 1024 * 1024 * 1024 : 1024 * 1024 * 1024; // 1.5 GB for premium, 1 GB for non-premium
-
-            if (ipaFile && ipaFile.size > maxSize) {
-                showNotification(`File size exceeds the ${currentUser.premium ? '1.5 GB' : '1 GB'} limit. ${currentUser.premium ? '' : 'Upgrade to premium for larger files.'}`, "error");
-                return;
-            }
-
-            resultDiv.textContent = "";
-            loader.classList.remove("hidden");
-
-            const formData = new FormData(form);
-            formData.append("expiryDays", currentUser.premium ? "120" : "30"); // 4 months for premium, 1 month for non-premium
-            formData.append("isPremium", currentUser.premium ? 'true' : 'false');
-            formData.append("username", currentUser.username); // Add the username to the form data
-
-            const button = form.querySelector('button[type="submit"]');
-            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-            button.disabled = true;
-
-            try {
-                const response = await fetch("https://api.aurorasigner.xyz/sign", {
-                    method: "POST",
-                    body: formData
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const result = await response.json();
-                handleSigningSuccess(result);
-            } catch (error) {
-                handleSigningError(error);
-            } finally {
-                button.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign IPA';
-                button.disabled = false;
-            }
-        });
-    }
-
-    function handleSigningSuccess(data) {
-        loader.classList.add("hidden");
-        if (data.install_url) {
-            const installLink = document.createElement("a");
-            installLink.href = `${data.install_url}`;
-            installLink.textContent = "Install App";
-            installLink.className = "install-link";
-            resultDiv.appendChild(installLink);
-            showNotification("IPA signed successfully!", "success");
-        } else {
-            throw new Error("Unable to get the install link");
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        if (!currentUser) {
+            showNotification("Please log in to sign IPAs", "error");
+            return;
         }
-    }
 
-    function handleSigningError(error) {
-        console.error("Error:", error);
-        loader.classList.add("hidden");
-        resultDiv.textContent = "Error: Failed to sign. Please contact support on our discord for fixes";
-        showNotification("Error: Failed to sign. Please contact support on our discord for fixes", "error");
+        // Logging user and file info
+        console.log("Signing request initiated by user:", currentUser.username);
+        const ipaFile = document.getElementById('ipa').files[0];
+        console.log("File selected for signing:", ipaFile ? ipaFile.name : "No file selected");
+
+        const maxSize = currentUser.premium ? 1.5 * 1024 * 1024 * 1024 : 1024 * 1024 * 1024; // 1.5 GB for premium, 1 GB for non-premium
+
+        if (ipaFile && ipaFile.size > maxSize) {
+            showNotification(`File size exceeds the ${currentUser.premium ? '1.5 GB' : '1 GB'} limit. ${currentUser.premium ? '' : 'Upgrade to premium for larger files.'}`, "error");
+            return;
+        }
+
+        resultDiv.textContent = "";
+        loader.classList.remove("hidden");
+
+        const formData = new FormData(form);
+        formData.append("expiryDays", currentUser.premium ? "120" : "30");
+        formData.append("isPremium", currentUser.premium ? 'true' : 'false');
+        formData.append("username", currentUser.username);
+
+        const button = form.querySelector('button[type="submit"]');
+if (button) {
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    button.disabled = true;
+} else {
+    console.warn("Submit button not found in the form.");
+}
+
+        try {
+            console.log("Sending signing request to API...");
+            const response = await fetch("https://api.aurorasigner.xyz/sign", {
+                method: "POST",
+                body: formData
+            });
+
+            // Log status of response
+            console.log("Response received from API with status:", response.status);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log("Signing successful. API response:", result);
+            handleSigningSuccess(result);
+        } catch (error) {
+            console.error("Error during signing request:", error);
+            handleSigningError(error);
+        } finally {
+            button.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign IPA';
+            button.disabled = false;
+        }
+    });
+}
+
+    // Modified handleSigningSuccess and handleSigningError functions
+function handleSigningSuccess(data) {
+    loader.classList.add("hidden");
+    console.log("Handling signing success. Data:", data);
+    if (data.install_url) {
+        const installLink = document.createElement("a");
+        installLink.href = `${data.install_url}`;
+        installLink.textContent = "Install App";
+        installLink.className = "install-link";
+        resultDiv.appendChild(installLink);
+        showNotification("IPA signed successfully!", "success");
+    } else {
+        console.error("Failed to obtain install link from response data.");
+        throw new Error("Unable to get the install link");
     }
+}
+
+function handleSigningError(error) {
+    console.error("Signing process failed:", error);
+    loader.classList.add("hidden");
+    resultDiv.textContent = "Error: Failed to sign. Please contact support on our discord for fixes";
+    showNotification("Error: Failed to sign. Please contact support on our discord for fixes", "error");
+}
 
     function showNotification(message, type) {
         const notification = document.createElement("div");
@@ -269,7 +285,7 @@ document.addEventListener("DOMContentLoaded", function () {
         async function registerUser(username, password) {
         try {
             console.log('Attempting register with:', username, password);
-            const response = await fetch('https://php.aurorasigner.xyz/api.php', {
+            const response = await fetch('https://admin.aurorasigner.xyz/api.js', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'register', username, password }),
@@ -508,13 +524,19 @@ if (data.success) {
         updateUIForUser(currentUser);
     });
 
-    document.getElementById('toggleAuthPassword').addEventListener('click', function() {
-        const passwordInput = document.getElementById('auth-password');
-        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordInput.setAttribute('type', type);
-        this.classList.toggle('fa-eye');
-        this.classList.toggle('fa-eye-slash');
+    const toggleAuthPassword = document.getElementById("toggleAuthPassword");
+
+if (toggleAuthPassword) {
+    toggleAuthPassword.addEventListener("click", function() {
+        const passwordInput = document.getElementById("auth-password");
+        const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+        passwordInput.setAttribute("type", type);
+        this.classList.toggle("fa-eye");
+        this.classList.toggle("fa-eye-slash");
     });
+} else {
+    console.warn("Element with ID 'toggleAuthPassword' not found in DOM.");
+}
 
     function showPrivacyPolicy() {
         document.getElementById('authForm').classList.add('hidden');

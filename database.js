@@ -1,7 +1,7 @@
 class Database {
     async registerUser(username, password) {
         console.log('Attempting register with:', username, password);
-        const response = await fetch('https://php.aurorasigner.xyz/api.php', {
+        const response = await fetch('https://admin.aurorasigner.xyz/api.js', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'register', username, password }),
@@ -13,7 +13,7 @@ class Database {
 
     async loginUser(username, password) {
         console.log('Attempting login with:', username, password);
-        const response = await fetch('https://php.aurorasigner.xyz/api.php', {
+        const response = await fetch('https://admin.aurorasigner.xyz/api.js', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'login', username, password }),
@@ -47,7 +47,7 @@ class Database {
             const userDataEncoded = btoa(JSON.stringify(currentUser)); // Encode user data to base64
     
             console.log('Sending request to api.php');
-            const response = await fetch('https://php.aurorasigner.xyz/api.php', {
+            const response = await fetch('https://admin.aurorasigner.xyz/api.js', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -79,8 +79,8 @@ class Database {
     
             const userDataEncoded = btoa(JSON.stringify(currentUser)); // Encode user data to base64
     
-            console.log('Sending request to api.php for updateUser');
-            const response = await fetch('https://php.aurorasigner.xyz/api.php', {
+            console.log('Sending request to api.js for updateUser');
+            const response = await fetch('https://admin.aurorasigner.xyz/api.js', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -100,7 +100,7 @@ class Database {
     }    
 
     async deleteUser(id) {
-        const response = await fetch('https://php.aurorasigner.xyz/api.php', {
+        const response = await fetch('https://admin.aurorasigner.xyz/api.js', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'deleteUser', id }),
@@ -110,7 +110,7 @@ class Database {
     }
 
     async getUserStats(id) {
-        const response = await fetch('https://php.aurorasigner.xyz/api.php', {
+        const response = await fetch('https://admin.aurorasigner.xyz/api.js', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'getUserStats', id }),
@@ -120,7 +120,7 @@ class Database {
     }
 
     async getUserData(id) {
-        const response = await fetch('https://php.aurorasigner.xyz/api.php', {
+        const response = await fetch('https://admin.aurorasigner.xyz/api.js', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'getUserData', id }),
@@ -136,7 +136,7 @@ async function checkAndUpdateDevStatus() {
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     if (currentUser) {
         try {
-            const response = await fetch('https://php.aurorasigner.xyz/api.php', {
+            const response = await fetch('https://admin.aurorasigner.xyz/api.js', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'checkDevStatus', username: currentUser.username }),
