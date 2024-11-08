@@ -525,6 +525,7 @@ if (data.success) {
     });
 
     const toggleAuthPassword = document.getElementById("toggleAuthPassword");
+
 if (toggleAuthPassword) {
     toggleAuthPassword.addEventListener("click", function() {
         const passwordInput = document.getElementById("auth-password");
