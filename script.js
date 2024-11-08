@@ -169,12 +169,11 @@ function handleSigningSuccess(data) {
     }
 }
 
-function handleSigningError(error) {
-    console.error("Signing process failed:", error);
+function handleRegistrationError(error) {
+    console.error("Registration process failed:", error);
 
     loader.classList.add("hidden");
 
-    console.log(error.response.status)
     // If error.response exists and it's a validation error (status 400)
     if (error.response && error.response.status === 400) {
         error.response.json().then((data) => {
@@ -183,8 +182,8 @@ function handleSigningError(error) {
             showNotification(errorMessage, "error");
         }).catch(() => {
             // In case parsing the error message fails
-            resultDiv.textContent = "Error: Failed to sign. Please contact support on our discord for fixes.";
-            showNotification("Failed to sign. Please contact support on our discord for fixes", "error");
+            resultDiv.textContent = "Error: Failed to register. Please contact support.";
+            showNotification("Failed to register. Please contact support.", "error");
         });
     } else {
         // For any other kind of error (e.g., network error or unexpected server error)
