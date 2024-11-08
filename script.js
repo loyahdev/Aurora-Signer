@@ -132,7 +132,7 @@ if (button) {
                 body: formData
             });
 
-            // Log status of response
+            // Log the status of response
             console.log("Response received from API with status:", response.status);
 
             if (!response.ok) {
