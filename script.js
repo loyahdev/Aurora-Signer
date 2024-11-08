@@ -172,19 +172,23 @@ function handleSigningSuccess(data) {
 function handleSigningError(error) {
     console.error("Signing process failed:", error);
 
-    // Check if the error is from a server response
-    if (error.response) {
+    loader.classList.add("hidden");
+
+    // If error.response exists and it's a validation error (status 400)
+    if (error.response && error.response.status === 400) {
         error.response.json().then((data) => {
-            const errorMessage = data.error || "Failed to sign. Please contact support on our discord for fixes.";
-            loader.classList.add("hidden");
+            const errorMessage = data.error || "An error occurred. Please try again.";
             resultDiv.textContent = `Error: ${errorMessage}`;
-            showNotification(`Error: ${errorMessage}`, "error");
+            showNotification(errorMessage, "error");
+        }).catch(() => {
+            // In case parsing the error message fails
+            resultDiv.textContent = "Error: Failed to sign. Please contact support on our discord for fixes.";
+            showNotification("Failed to sign. Please contact support on our discord for fixes", "error");
         });
     } else {
-        // For any other kind of error (e.g., network error)
-        loader.classList.add("hidden");
-        resultDiv.textContent = "Error: Failed to sign. Please contact support on our discord for fixes.";
-        showNotification("Error: Failed to sign. Please contact support on our discord for fixes", "error");
+        // For any other kind of error (e.g., network error or unexpected server error)
+        resultDiv.textContent = "Error: Internal server error. Please try again later.";
+        showNotification("Internal server error", "error");
     }
 }
 
