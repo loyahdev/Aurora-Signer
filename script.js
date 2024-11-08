@@ -171,9 +171,21 @@ function handleSigningSuccess(data) {
 
 function handleSigningError(error) {
     console.error("Signing process failed:", error);
-    loader.classList.add("hidden");
-    resultDiv.textContent = "Error: Failed to sign. Please contact support on our discord for fixes";
-    showNotification("Error: Failed to sign. Please contact support on our discord for fixes", "error");
+
+    // Check if the error is from a server response
+    if (error.response) {
+        error.response.json().then((data) => {
+            const errorMessage = data.error || "Failed to sign. Please contact support on our discord for fixes.";
+            loader.classList.add("hidden");
+            resultDiv.textContent = `Error: ${errorMessage}`;
+            showNotification(`Error: ${errorMessage}`, "error");
+        });
+    } else {
+        // For any other kind of error (e.g., network error)
+        loader.classList.add("hidden");
+        resultDiv.textContent = "Error: Failed to sign. Please contact support on our discord for fixes.";
+        showNotification("Error: Failed to sign. Please contact support on our discord for fixes", "error");
+    }
 }
 
     function showNotification(message, type) {
