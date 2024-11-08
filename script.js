@@ -566,7 +566,7 @@ if (data.success) {
 
     const toggleAuthPassword = document.getElementById("toggleAuthPassword");
 
-if (toggleAuthPassword) {
+/*if (toggleAuthPassword) {
     toggleAuthPassword.addEventListener("click", function() {
         const passwordInput = document.getElementById("auth-password");
         const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
@@ -576,7 +576,7 @@ if (toggleAuthPassword) {
     });
 } else {
     console.warn("Element with ID 'toggleAuthPassword' not found in DOM.");
-}
+}*/
 
     function showPrivacyPolicy() {
         document.getElementById('authForm').classList.add('hidden');
@@ -597,10 +597,10 @@ if (toggleAuthPassword) {
         }
     }
 
-    viewPrivacyPolicyLink.addEventListener('click', (e) => {
+    /*viewPrivacyPolicyLink.addEventListener('click', (e) => {
         e.preventDefault();
         showPrivacyPolicy();
-    });
+    });*/
 
     document.getElementById('backToSignup').addEventListener('click', hidePrivacyPolicy);
 
