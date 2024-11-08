@@ -174,6 +174,7 @@ function handleSigningError(error) {
 
     loader.classList.add("hidden");
 
+    console.log(error.response.status)
     // If error.response exists and it's a validation error (status 400)
     if (error.response && error.response.status === 400) {
         error.response.json().then((data) => {
