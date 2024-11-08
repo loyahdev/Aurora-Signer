@@ -118,8 +118,12 @@ document.addEventListener("DOMContentLoaded", function () {
         formData.append("username", currentUser.username);
 
         const button = form.querySelector('button[type="submit"]');
-        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-        button.disabled = true;
+if (button) {
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    button.disabled = true;
+} else {
+    console.warn("Submit button not found in the form.");
+}
 
         try {
             console.log("Sending signing request to API...");
@@ -520,13 +524,18 @@ if (data.success) {
         updateUIForUser(currentUser);
     });
 
-    document.getElementById('toggleAuthPassword').addEventListener('click', function() {
-        const passwordInput = document.getElementById('auth-password');
-        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordInput.setAttribute('type', type);
-        this.classList.toggle('fa-eye');
-        this.classList.toggle('fa-eye-slash');
+    const toggleAuthPassword = document.getElementById("toggleAuthPassword");
+if (toggleAuthPassword) {
+    toggleAuthPassword.addEventListener("click", function() {
+        const passwordInput = document.getElementById("auth-password");
+        const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+        passwordInput.setAttribute("type", type);
+        this.classList.toggle("fa-eye");
+        this.classList.toggle("fa-eye-slash");
     });
+} else {
+    console.warn("Element with ID 'toggleAuthPassword' not found in DOM.");
+}
 
     function showPrivacyPolicy() {
         document.getElementById('authForm').classList.add('hidden');
