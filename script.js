@@ -169,6 +169,30 @@ function handleSigningSuccess(data) {
     }
 }
 
+    async function handleSigningError(error) {
+        console.error("Signing process failed:", error);
+        loader.classList.add("hidden");
+
+        if (error.response) {
+            if (error.response.status === 400) {
+                error.response.json().then((data) => {
+                    const errorMessage = data.error || "An error occurred. Please try again.";
+                    resultDiv.textContent = `Error: ${errorMessage}`;
+                    showNotification(errorMessage, "error");
+                }).catch(() => {
+                    resultDiv.textContent = "Error: Failed to sign. Please contact support.";
+                    showNotification("Failed to sign. Please contact support.", "error");
+                });
+            } else {
+                resultDiv.textContent = `Error: ${error.response.statusText || "An error occurred"}`;
+                showNotification(`Error: ${error.response.statusText || "An error occurred"}`, "error");
+            }
+        } else {
+            resultDiv.textContent = "Error: Network error. Please try again later.";
+            showNotification("Network error. Please try again later.", "error");
+        }
+    }
+
 function handleRegistrationError(error) {
     console.error("Registration process failed:", error);
 
