@@ -188,8 +188,8 @@ function handleSigningSuccess(data) {
                 showNotification(`Error: ${error.response.statusText || "An error occurred"}`, "error");
             }
         } else {
-            resultDiv.textContent = "Error: Network error. Please try again later.";
-            showNotification("Network error. Please try again later.", "error");
+            resultDiv.textContent = "An error occured while signing, P12 password may be incorrect.";
+            showNotification("An error occured while signing, P12 password may be incorrect.", "error");
         }
     }
 
