@@ -164,7 +164,7 @@ function handleSigningSuccess(data) {
         if (!currentUser?.premium) {
             // For non-premium users, redirect through LootLabs
             const installId = data.install_url.split('/').pop().replace('.plist', '');
-            installLink.href = `https://loot-link.com/s?982003ce&id=${installId}`;
+            installLink.href = `https://loot-link.com/s?25bec272&id=${installId}`;
         } else {
             // Premium users get direct install link
             installLink.href = data.install_url;
