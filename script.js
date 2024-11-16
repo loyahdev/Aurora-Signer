@@ -167,10 +167,7 @@ function handleSigningSuccess(data) {
             installLink.href = `https://loot-link.com/s?982003ce&id=${installId}`;
         } else {
             // Premium users get direct install link
-            const installUrl = data.install_url.startsWith('itms-services://') 
-                ? data.install_url 
-                : `itms-services://?action=download-manifest&url=https://api.aurorasigner.xyz/plist/${data.install_url.split('/').pop()}`;
-            installLink.href = installUrl;
+            installLink.href = data.install_url;
         }
         
         installLink.textContent = "Install App";
