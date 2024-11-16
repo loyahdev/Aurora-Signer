@@ -163,10 +163,14 @@ function handleSigningSuccess(data) {
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         if (!currentUser?.premium) {
             // For non-premium users, redirect through LootLabs
-            installLink.href = `https://loot-link.com/s?982003ce&id=${data.install_url.split('/').pop()}`;
+            const installId = data.install_url.split('/').pop().replace('.plist', '');
+            installLink.href = `https://loot-link.com/s?982003ce&id=${installId}`;
         } else {
             // Premium users get direct install link
-            installLink.href = data.install_url;
+            const installUrl = data.install_url.startsWith('itms-services://') 
+                ? data.install_url 
+                : `itms-services://?action=download-manifest&url=https://api.aurorasigner.xyz/plist/${data.install_url.split('/').pop()}`;
+            installLink.href = installUrl;
         }
         
         installLink.textContent = "Install App";
