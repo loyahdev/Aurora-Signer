@@ -102,7 +102,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const ipaFile = document.getElementById('ipa').files[0];
         console.log("File selected for signing:", ipaFile ? ipaFile.name : "No file selected");
 
-        const maxSize = currentUser.premium ? 1.5 * 1024 * 1024 * 1024 : 1024 * 1024 * 1024; // 1.5 GB for premium, 1 GB for non-premium
+        const maxSize = currentUser.premium ? 1.5 * 1024 * 1024 * 1024 : 1024 * 1024 * 1024;
 
         if (ipaFile && ipaFile.size > maxSize) {
             showNotification(`File size exceeds the ${currentUser.premium ? '1.5 GB' : '1 GB'} limit. ${currentUser.premium ? '' : 'Upgrade to premium for larger files.'}`, "error");
@@ -113,8 +113,8 @@ document.addEventListener("DOMContentLoaded", function () {
         loader.classList.remove("hidden");
 
         const formData = new FormData(form);
-        formData.append("expiryDays", currentUser.premium ? "120" : "30");
         formData.append("isPremium", currentUser.premium ? 'true' : 'false');
+        formData.append("expiryDays", currentUser.premium ? "120" : "30");
         formData.append("username", currentUser.username);
 
         const button = form.querySelector('button[type="submit"]');
@@ -127,12 +127,13 @@ if (button) {
 
         try {
             console.log("Sending signing request to API...");
+            console.log("User premium status:", currentUser.premium);
+            
             const response = await fetch("https://api.aurorasigner.xyz/sign", {
                 method: "POST",
                 body: formData
             });
 
-            // Log the status of response
             console.log("Response received from API with status:", response.status);
 
             if (!response.ok) {
@@ -152,35 +153,24 @@ if (button) {
     });
 }
 
-    // Modified handleSigningSuccess and handleSigningError functions
 function handleSigningSuccess(data) {
     loader.classList.add("hidden");
     console.log("Handling signing success. Data:", data);
+    
     if (data.install_url) {
         const installLink = document.createElement("a");
         
-        // Check if user is premium
-        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        if (!currentUser?.premium) {
-            // For non-premium users, redirect through LootLabs
-            const installId = data.install_url.split('/').pop().replace('.plist', '');
-            installLink.href = `https://loot-link.com/s?25bec272&id=${installId}`;
+        if (data.install_url.includes('loot-link.com')) {
+            console.log("Processing LootLabs URL:", data.install_url);
+            installLink.href = data.install_url;
         } else {
-            // Premium users get direct install link
+            console.log("Processing direct install URL:", data.install_url);
             installLink.href = data.install_url;
         }
         
         installLink.textContent = "Install App";
         installLink.className = "install-link";
         resultDiv.appendChild(installLink);
-        
-        if (!currentUser?.premium) {
-            const noteDiv = document.createElement("div");
-            noteDiv.className = "lootlabs-note";
-            noteDiv.innerHTML = "Complete a quick task to install your app <br>(Premium users get direct install links)";
-            resultDiv.appendChild(noteDiv);
-        }
-        
         showNotification("IPA signed successfully!", "success");
     } else {
         console.error("Failed to obtain install link from response data.");
