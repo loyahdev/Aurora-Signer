@@ -530,9 +530,9 @@ if (data.success) {
             
             if (user.premium) {
                 usernameDisplay.innerHTML += ' <span class="premium-badge">Premium</span>';
-                linkDurationInfo.textContent = 'Links last for 4 months because you have premium';
+                linkDurationInfo.textContent = 'Links last for 2 months because you have premium';
             } else {
-                linkDurationInfo.textContent = 'Links last for 1 month';
+                linkDurationInfo.textContent = 'Links last for 14 days';
             }
             
             if (user.isDev) {
