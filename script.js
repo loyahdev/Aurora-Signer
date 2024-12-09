@@ -51,22 +51,66 @@ document.addEventListener("DOMContentLoaded", function () {
     const linkDurationInfo = document.getElementById('linkDuration');
 
     let currentTheme = "normal-mode";
-    const themes = ["normal-mode", "light-mode", "dark-mode"];
+    const themes = ["normal-mode", "light-mode", "dark-mode", "christmas-mode"];
     const themeIcons = {
         "normal-mode": "fa-star",
         "light-mode": "fa-sun",
         "dark-mode": "fa-moon",
+        "christmas-mode": "fa-tree"
     };
 
     let rotation = 0;
     let isLoginMode = false;
     let currentUser = null;
 
+    function createSnowflakes() {
+        const snowContainer = document.createElement('div');
+        snowContainer.className = 'snow';
+        document.body.appendChild(snowContainer);
+
+        const snowPile = document.createElement('div');
+        snowPile.className = 'snow-pile';
+        document.querySelector('footer').appendChild(snowPile);
+
+        for (let i = 0; i < 50; i++) {
+            createSnowflake(snowContainer);
+        }
+
+        function createSnowflake(container) {
+            const snowflake = document.createElement('span');
+            snowflake.style.left = Math.random() * 100 + '%';
+            snowflake.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            snowflake.style.opacity = Math.random() * 0.6 + 0.4;
+            snowflake.style.width = snowflake.style.height = Math.random() * 4 + 2 + 'px';
+            
+            // Add animation end listener
+            snowflake.addEventListener('animationend', () => {
+                snowflake.remove();
+                createSnowflake(container);
+            });
+            
+            container.appendChild(snowflake);
+        }
+    }
+
     function setTheme(theme) {
         document.body.className = theme;
         localStorage.setItem("theme", theme);
         themeToggle.className = `fas ${themeIcons[theme]}`;
         currentTheme = theme;
+
+        const existingSnow = document.querySelector('.snow');
+        const existingSnowPile = document.querySelector('.snow-pile');
+        if (existingSnow) {
+            existingSnow.remove();
+        }
+        if (existingSnowPile) {
+            existingSnowPile.remove();
+        }
+
+        if (theme === 'christmas-mode') {
+            createSnowflakes();
+        }
     }
 
     themeToggle.addEventListener("click", function () {
