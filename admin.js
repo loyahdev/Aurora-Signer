@@ -1,8 +1,28 @@
-let allUsers = []; // Store all users globally
+let allUsers = []; // Store all users
 
-// Load users from the backend and display in admin panel
+async function apiCall(action, payload) {
+    try {
+        const response = await fetch('https://admin.aurorasigner.xyz/api.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action, ...payload }),
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error(`Error during API call: ${error}`);
+        alert(`An error occurred: ${error.message}`);
+        throw error; // Rethrow for further handling if needed
+    }
+}
+
 async function loadUsers() {
-    console.log('Loading users...');
+    console.log('loadUsers called');
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     if (!currentUser || !currentUser.isDev) {
         console.error('Unauthorized access to admin panel');
@@ -19,48 +39,48 @@ async function loadUsers() {
     }
 
     try {
-        allUsers = await fetchUsers();
-        if (allUsers.length === 0) {
+        console.log('Fetching users...');
+        allUsers = await db.getAllUsers();
+        console.log('Fetched users:', allUsers);
+        if (!allUsers || !Array.isArray(allUsers) || allUsers.length === 0) {
+            console.log('No users found or invalid user data');
             userList.innerHTML = '<p>No users found.</p>';
-        } else {
-            filterAndDisplayUsers();
+            return;
         }
+        filterAndDisplayUsers();
     } catch (error) {
         console.error('Error loading users:', error);
         userList.innerHTML = '<p>Error loading users. Please try again later.</p>';
     }
 }
 
-// Fetch users from backend API
-async function fetchUsers() {
-    try {
-        const response = await fetch('/api/users'); // Replace with actual API endpoint
-        if (!response.ok) throw new Error(`Failed to fetch users: ${response.status}`);
-        return await response.json();
-    } catch (error) {
-        console.error('Error fetching users:', error);
-        throw error;
-    }
-}
-
-// Filter and display users based on search and filter criteria
 function filterAndDisplayUsers() {
     const userList = document.getElementById('adminUserList');
-    if (!userList) return;
+    if (!userList) {
+        console.error('Admin user list element not found');
+        return;
+    }
 
     const searchTerm = document.getElementById('adminUserSearch')?.value.toLowerCase() || '';
     const premiumFilter = document.getElementById('premiumFilter')?.value || 'all';
     const devFilter = document.getElementById('devFilter')?.value || 'all';
+    const dateFilter = document.getElementById('dateFilter')?.value || 'all';
 
     const filteredUsers = allUsers.filter(user => {
-        const matchesSearch = !searchTerm || user.username.toLowerCase().includes(searchTerm);
+        const matchesSearch = searchTerm === '' || user.username.toLowerCase().includes(searchTerm);
         const matchesPremium = premiumFilter === 'all' || 
             (premiumFilter === 'yes' && user.premium) || 
             (premiumFilter === 'no' && !user.premium);
         const matchesDev = devFilter === 'all' || 
             (devFilter === 'yes' && user.isDev) || 
             (devFilter === 'no' && !user.isDev);
-        return matchesSearch && matchesPremium && matchesDev;
+        const userDate = new Date(user.createdAt);
+        const matchesDate = dateFilter === 'all' || 
+            (dateFilter === 'lastWeek' && isWithinLastWeek(userDate)) ||
+            (dateFilter === 'lastMonth' && isWithinLastMonth(userDate)) ||
+            (dateFilter === 'lastYear' && isWithinLastYear(userDate));
+
+        return matchesSearch && matchesPremium && matchesDev && matchesDate;
     });
 
     userList.innerHTML = filteredUsers.map(user => `
@@ -70,6 +90,7 @@ function filterAndDisplayUsers() {
                 ${user.premium ? '<span class="premium-badge">Premium</span>' : ''}
                 ${user.isDev ? '<span class="dev-badge">Dev</span>' : ''}
             </span>
+            <span class="user-date">Registered: ${new Date(user.createdAt).toLocaleDateString()}</span>
             <button onclick="toggleUserOptions(${user.id})">Options</button>
             <div id="userOptions-${user.id}" class="user-options hidden">
                 <button onclick="togglePremium(${user.id}, ${user.premium})">
@@ -78,61 +99,235 @@ function filterAndDisplayUsers() {
                 <button onclick="toggleDev(${user.id}, ${user.isDev})">
                     ${user.isDev ? 'Remove Dev' : 'Make Dev'}
                 </button>
-                <button onclick="resetPassword(${user.id})">Reset Password</button>
+                <button onclick="changePassword(${user.id})">Change Password</button>
                 <button onclick="deleteUser(${user.id})">Delete User</button>
                 <button onclick="revealPassword(${user.id})">Reveal Password</button>
+                <button onclick="downloadLogs()">Download Logs</button>
             </div>
         </div>
     `).join('');
 }
 
-// Reset user password (with a temporary password)
-async function resetPassword(id) {
-    try {
-        const temporaryPassword = 'Temp1234'; // Or generate a random password
-        const response = await updateUser(id, { password: temporaryPassword });
-        if (response.success) {
-            alert(`Password reset. User can now log in with the temporary password: ${temporaryPassword}`);
-            await loadUsers();
-        }
-    } catch (error) {
-        console.error('Error resetting password:', error);
-        alert('Error resetting password. Please try again.');
-    }
-}
-
-// Update user (for toggle actions)
-async function updateUser(id, updates) {
-    try {
-        const response = await fetch(`/api/users/${id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updates),
-        });
-        if (!response.ok) throw new Error(`Failed to update user: ${response.status}`);
-        return await response.json();
-    } catch (error) {
-        console.error('Error updating user:', error);
-        throw error;
-    }
-}
-
-// Check if admin panel should be shown
-function checkAdminPanel() {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+// Make sure this event listener is added only once
+document.addEventListener('DOMContentLoaded', () => {
     const devButton = document.getElementById('devButton');
-
-    if (currentUser?.isDev) {
-        devButton?.classList.remove('hidden');
+    if (devButton) {
+        devButton.removeEventListener('click', toggleAdminPanel);
         devButton.addEventListener('click', toggleAdminPanel);
-    } else {
-        devButton?.classList.add('hidden');
     }
-}
 
-// Toggle the admin panel visibility
+    const userSearch = document.getElementById('adminUserSearch');
+    if (userSearch) {
+        userSearch.removeEventListener('input', filterAndDisplayUsers);
+        userSearch.addEventListener('input', filterAndDisplayUsers);
+    }
+
+    const filterSelects = document.querySelectorAll('#adminPanel select');
+    filterSelects.forEach(select => {
+        select.removeEventListener('change', filterAndDisplayUsers);
+        select.addEventListener('change', filterAndDisplayUsers);
+    });
+
+    // Add real-time filtering for all inputs
+    const allInputs = document.querySelectorAll('#adminPanel input, #adminPanel select');
+    allInputs.forEach(input => {
+        input.addEventListener('input', filterAndDisplayUsers);
+    });
+});
+
 function toggleAdminPanel() {
     const adminPanel = document.getElementById('adminPanel');
-    adminPanel?.classList.toggle('hidden');
-    if (!adminPanel.classList.contains('hidden')) loadUsers();
+    if (!adminPanel) {
+        console.error('Admin panel element not found');
+        return;
+    }
+    adminPanel.classList.toggle('hidden');
+    if (!adminPanel.classList.contains('hidden')) {
+        loadUsers();
+    }
+}
+
+function toggleUserOptions(userId) {
+    const optionsDiv = document.getElementById(`userOptions-${userId}`);
+    optionsDiv.classList.toggle('hidden');
+}
+
+async function togglePremium(id, currentStatus) {
+    console.log(`Toggling premium status for user ID: ${id}, current status: ${currentStatus}`);
+    
+    try {
+        const result = await apiCall('updateUser', { id, premium: currentStatus ? 0 : 1 });
+        if (result) {
+            console.log('Premium status updated successfully');
+            loadUsers();
+        } else {
+            console.error('Failed to update premium status');
+        }
+    } catch (error) {
+        console.error('Error toggling premium status:', error);
+    }
+}
+
+async function toggleDev(id, currentStatus) {
+    const result = await db.updateUser(id, { isDev: currentStatus ? 0 : 1 });
+    if (result) loadUsers();
+}
+
+async function resetPassword(id) {
+    const result = await db.updateUser(id, { password: null });
+    if (result) alert('Password reset. User can now log in with any password.');
+}
+
+async function deleteUser(id) {
+    if (confirm('Are you sure you want to delete this user?')) {
+        const result = await db.deleteUser(id);
+        if (result) loadUsers();
+    }
+}
+
+async function changePassword(id) {
+    const newPassword = prompt("Enter new password for the user:");
+    if (newPassword) {
+        if (newPassword.length < 8) {
+            alert("Password must be at least 8 characters long.");
+            return;
+        }
+        const result = await db.updateUser(id, { password: newPassword });
+        if (result) {
+            alert('Password changed successfully.');
+            loadUsers();
+        } else {
+            alert('Failed to change password.');
+        }
+    }
+}
+
+async function viewUserStats(id) {
+    try {
+        const stats = await db.getUserStats(id);
+        alert(`User Statistics:\nTotal Sign-ins: ${stats.totalSignIns}\nLast Login: ${stats.lastLogin}\nIPAs Signed: ${stats.ipasSigned}`);
+    } catch (error) {
+        console.error('Error fetching user stats:', error);
+        alert('Failed to fetch user statistics.');
+    }
+}
+
+async function toggleBan(id, currentStatus) {
+    const result = await db.updateUser(id, { isBanned: !currentStatus });
+    if (result) {
+        alert(`User ${currentStatus ? 'unbanned' : 'banned'} successfully.`);
+        loadUsers();
+    } else {
+        alert('Failed to update user ban status.');
+    }
+}
+
+async function exportUserData(id) {
+    try {
+        const userData = await db.getUserData(id);
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(userData));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", `user_${id}_data.json`);
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    } catch (error) {
+        console.error('Error exporting user data:', error);
+        alert('Failed to export user data.');
+    }
+}
+
+function checkAdminPanel() {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const adminPanel = document.getElementById('adminPanel');
+    const devButton = document.getElementById('devButton');
+
+    if (currentUser && currentUser.isDev) {
+        devButton.classList.remove('hidden');
+        devButton.removeEventListener('click', toggleAdminPanel);
+        devButton.addEventListener('click', toggleAdminPanel);
+    } else {
+        devButton.classList.add('hidden');
+        if (adminPanel) {
+            adminPanel.classList.add('hidden');
+        }
+    }
+}
+
+async function revealPassword(id) {
+    try {
+        const data = await apiCall('revealPassword', { id });
+        if (data.success) {
+            alert(`User's password: ${data.password}`);
+        } else {
+            alert('Failed to reveal password.');
+        }
+    } catch (error) {
+        console.error('Error revealing password:', error);
+    }
+}
+
+function isWithinLastWeek(date) {
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    return date >= oneWeekAgo;
+}
+
+function isWithinLastMonth(date) {
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+    return date >= oneMonthAgo;
+}
+
+function isWithinLastYear(date) {
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+    return date >= oneYearAgo;
+}
+
+window.toggleAdminPanel = toggleAdminPanel;
+
+async function downloadLogs() {
+    try {
+        const data = await apiCall('getLogsAndStats');
+        
+        if (data.success) {
+            const csvContent = generateCSV(data.logs, data.stats);
+            downloadCSV(csvContent, 'logs_and_stats.csv');
+        } else {
+            throw new Error(data.error || 'Unknown error occurred');
+        }
+    } catch (error) {
+        console.error('Error fetching logs and statistics:', error);
+    }
+}
+
+function generateCSV(logs, stats) {
+    let csvContent = "data:text/csv;charset=utf-8,";
+
+    // Add usage statistics
+    csvContent += "Usage Statistics\n";
+    csvContent += "Date,IPAs Signed\n";
+    Object.entries(stats).forEach(([date, count]) => {
+        csvContent += `${date},${count}\n`;
+    });
+
+    csvContent += "\nActivity Logs\n";
+    csvContent += "Timestamp,User,Action,Details\n";
+    logs.forEach(log => {
+        csvContent += `${log.timestamp},${log.username || 'N/A'},${log.action},${log.details}\n`;
+    });
+
+    return csvContent;
+}
+
+function downloadCSV(content, fileName) {
+    const encodedUri = encodeURI(content);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", fileName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
