@@ -191,14 +191,17 @@ async function resetPassword(id) {
 async function deleteUser(id) {
     if (confirm('Are you sure you want to delete this user?')) {
         try {
-            const result = await apiCall('deleteUser', { id }); // Call the API to delete the user
+            const result = await apiCall('deleteUser', { id });
             if (result.success) {
-                loadUsers();
+                loadUsers(); // Reload users after deletion
+                alert('User deleted successfully.');
             } else {
                 console.error('Failed to delete user:', result.error);
+                alert('Error deleting user: ' + result.error);
             }
         } catch (error) {
             console.error('Error deleting user:', error);
+            alert('An error occurred while trying to delete the user.');
         }
     }
 }
