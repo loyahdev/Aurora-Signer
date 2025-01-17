@@ -40,7 +40,8 @@ async function loadUsers(page = 1, limit = 10) {
 
     try {
         console.log('Fetching users...');
-        const result = await apiCall('getAllUsers', { page, limit }); // Pass pagination parameters
+        const result = await apiCall('getAllUsers', {});
+        console.log('API Response:', result);
         allUsers = result.users || []; // Ensure we handle the response correctly
         console.log('Fetched users:', allUsers);
         if (!allUsers || !Array.isArray(allUsers) || allUsers.length === 0) {
