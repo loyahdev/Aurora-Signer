@@ -21,7 +21,7 @@ async function apiCall(action, payload) {
     }
 }
 
-async function loadUsers() {
+async function loadUsers(page = 1, limit = 10) {
     console.log('loadUsers called');
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     if (!currentUser || !currentUser.isDev) {
@@ -40,7 +40,8 @@ async function loadUsers() {
 
     try {
         console.log('Fetching users...');
-        allUsers = await db.getAllUsers();
+        const result = await apiCall('getAllUsers', { page, limit }); // Pass pagination parameters
+        allUsers = result.users || []; // Ensure we handle the response correctly
         console.log('Fetched users:', allUsers);
         if (!allUsers || !Array.isArray(allUsers) || allUsers.length === 0) {
             console.log('No users found or invalid user data');
@@ -119,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const userSearch = document.getElementById('adminUserSearch');
     if (userSearch) {
         userSearch.removeEventListener('input', filterAndDisplayUsers);
-        userSearch.addEventListener('input', filterAndDisplayUsers);
+        userSearch.addEventListener('input', debounce(filterAndDisplayUsers, 300)); // 300ms debounce
     }
 
     const filterSelects = document.querySelectorAll('#adminPanel select');
@@ -156,12 +157,12 @@ async function togglePremium(id, currentStatus) {
     console.log(`Toggling premium status for user ID: ${id}, current status: ${currentStatus}`);
     
     try {
-        const result = await apiCall('updateUser', { id, premium: currentStatus ? 0 : 1 });
-        if (result) {
+        const result = await apiCall('updateUser', { id, updateData: { premium: currentStatus ? 0 : 1 } }); // Send the correct payload
+        if (result.success) {
             console.log('Premium status updated successfully');
             loadUsers();
         } else {
-            console.error('Failed to update premium status');
+            console.error('Failed to update premium status:', result.error);
         }
     } catch (error) {
         console.error('Error toggling premium status:', error);
@@ -169,8 +170,16 @@ async function togglePremium(id, currentStatus) {
 }
 
 async function toggleDev(id, currentStatus) {
-    const result = await db.updateUser(id, { isDev: currentStatus ? 0 : 1 });
-    if (result) loadUsers();
+    try {
+        const result = await apiCall('updateUser', { id, updateData: { isDev: currentStatus ? 0 : 1 } }); // Send the correct payload
+        if (result.success) {
+            loadUsers();
+        } else {
+            console.error('Failed to update dev status:', result.error);
+        }
+    } catch (error) {
+        console.error('Error toggling dev status:', error);
+    }
 }
 
 async function resetPassword(id) {
@@ -180,8 +189,16 @@ async function resetPassword(id) {
 
 async function deleteUser(id) {
     if (confirm('Are you sure you want to delete this user?')) {
-        const result = await db.deleteUser(id);
-        if (result) loadUsers();
+        try {
+            const result = await apiCall('deleteUser', { id }); // Call the API to delete the user
+            if (result.success) {
+                loadUsers();
+            } else {
+                console.error('Failed to delete user:', result.error);
+            }
+        } catch (error) {
+            console.error('Error deleting user:', error);
+        }
     }
 }
 
@@ -192,12 +209,17 @@ async function changePassword(id) {
             alert("Password must be at least 8 characters long.");
             return;
         }
-        const result = await db.updateUser(id, { password: newPassword });
-        if (result) {
-            alert('Password changed successfully.');
-            loadUsers();
-        } else {
-            alert('Failed to change password.');
+        // Validate that the password meets other criteria if necessary
+        try {
+            const result = await apiCall('updateUser', { id, updateData: { password: newPassword } });
+            if (result.success) {
+                alert('Password changed successfully.');
+                loadUsers();
+            } else {
+                alert('Failed to change password.');
+            }
+        } catch (error) {
+            console.error('Error changing password:', error);
         }
     }
 }
@@ -256,15 +278,23 @@ function checkAdminPanel() {
 }
 
 async function revealPassword(id) {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    
+    if (!currentUser || !currentUser.isDev) {
+        alert('You do not have permission to reveal passwords.');
+        return;
+    }
+
     try {
         const data = await apiCall('revealPassword', { id });
         if (data.success) {
             alert(`User's password: ${data.password}`);
         } else {
-            alert('Failed to reveal password.');
+            alert('Failed to reveal password: ' + (data.error || 'Unknown error.'));
         }
     } catch (error) {
         console.error('Error revealing password:', error);
+        alert('An error occurred while trying to reveal the password.');
     }
 }
 
@@ -330,4 +360,12 @@ function downloadCSV(content, fileName) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+}
+
+function debounce(func, delay) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+    };
 }
