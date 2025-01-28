@@ -1,74 +1,74 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-    
-<script data-obct type = "text/javascript">
-  /** DO NOT MODIFY THIS CODE**/
-  !function(_window, _document) {
-    var OB_ADV_ID = '001f9b603da95a77c0ca4bf153ead6e301';
-    if (_window.obApi) {
-      var toArray = function(object) {
-        return Object.prototype.toString.call(object) === '[object Array]' ? object : [object];
-      };
-      _window.obApi.marketerId = toArray(_window.obApi.marketerId).concat(toArray(OB_ADV_ID));
-      return;
-    }
-    var api = _window.obApi = function() {
-      api.dispatch ? api.dispatch.apply(api, arguments) : api.queue.push(arguments);
-    };
-    api.version = '1.1';
-    api.loaded = true;
-    api.marketerId = OB_ADV_ID;
-    api.queue = [];
-    var tag = _document.createElement('script');
-    tag.async = true;
-    tag.src = '//amplify.outbrain.com/cp/obtp.js';
-    tag.type = 'text/javascript';
-    var script = _document.getElementsByTagName('script')[0];
-    script.parentNode.insertBefore(tag, script);
-  }(window, document);
-
-  obApi('track', 'PAGE_VIEW');
-</script>
-
-    <head>
-        <meta charset="UTF-8" />
+<head>
+    <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-        <title>Aurora Signer</title>
-        <link rel="stylesheet" href="styles.css?v=<?php echo time(); ?>">
-        <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
-        />
-        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-        <meta http-equiv="Pragma" content="no-cache">
-        <meta http-equiv="Expires" content="0">
-    </head>
-    <body class="normal-mode">
-        <nav>
-            <div class="nav-container">
-                <div class="theme-toggle">
-                    <i class="fas fa-n" id="themeToggle"></i>
-                </div>
-                <a
-                    href="https://discord.gg/tqAZcA5PTr"
-                    class="nav-icon discord-icon"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    ><i class="fab fa-discord"></i
-                ></a>
-                <a href="#" class="nav-icon" id="signInButton"
-                    ><i class="fas fa-sign-in-alt"></i
-                ></a>
-                <span id="userInfo" class="user-info hidden">
-                    <i class="fas fa-user"></i>
-                    <span id="username-display"></span>
-                    <button id="devButton" class="dev-button hidden">Admin Panel</button>
-                </span>
-                <a href="#" class="nav-icon hidden" id="devPanelButton"><i class="fas fa-cogs"></i></a>
-                <a href="/privacyandpolicy" class="nav-icon"><i class="fas fa-shield-alt"></i></a>
+    <title>CSL V3</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/aurora.css?v=<?php echo time(); ?>">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <img src="images/logo.png" class="desktop-logo" alt="CSL Logo">
+        <img src="images/logo.png" class="mobile-logo" alt="CSL Logo">
+        <span class="nav-title">
+            <span class="title-short">CSL</span>
+            <span class="title-full">Cherry Sideloading</span>
+        </span>
+
+        <div class="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="navbar-links">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="index.html"><i class="fas fa-home"></i> Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="archive.html"><i class="fas fa-archive"></i> Archive</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="certificates.html"><i class="fas fa-certificate"></i> Certificates</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="aurora.html"><i class="fas fa-signature"></i> Aurora Signer</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="legal.html"><i class="fas fa-gavel"></i> Legal</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <div class="nav-old">
+        <div class="nav-aurora">
+            <div class="theme-toggle">
+                <i class="fas fa-n" id="themeToggle"></i>
             </div>
-        </nav>
-        <div class="container">
+            <a
+                href="https://discord.gg/MneB2xjtGu"
+                class="nav-icon discord-icon"
+                target="_blank"
+                rel="noopener noreferrer"
+                ><i class="fab fa-discord"></i
+            ></a>
+            <a href="#" class="nav-icon" id="signInButton"
+                ><i class="fas fa-sign-in-alt"></i
+            ></a>
+            <span id="userInfo" class="user-info hidden">
+                <i class="fas fa-user"></i>
+                <span id="username-display"></span>
+                <button id="devButton" class="dev-button hidden">Admin Panel</button>
+            </span>
+            <a href="#" class="nav-icon hidden" id="devPanelButton"><i class="fas fa-cogs"></i></a>
+            <a href="/legal.html" class="nav-icon"><i class="fas fa-shield-alt"></i></a>
+        </div>
+    </div>
+        
             <h1>Aurora Signer</h1>
             <form id="ASrequest" enctype="multipart/form-data">
                 <input type="text" name="username" autocomplete="username" style="display:none;">
@@ -132,52 +132,112 @@
                         required
                         autocomplete="new-password"
                     />
-                    <i class="fas fa-eye" id="togglePassword" style="position: absolute; right: 10px; top: 50px;"></i>
+                    <i class="fas fa-eye" id="togglePassword" style="position: absolute; right: 10px; top: 60px;"></i>
                 </div>
-                <button type="submit (alpha)">
-                    <i class="fas fa-sign-in-alt"></i> Sign IPA
-                </button>
+                <button type="submit"><i class="fas fa-sign-in-alt"></i> Sign IPA</button>
                 <p id="linkDuration" class="link-duration-info"></p>
                 <div id="progressBarContainer" class="hidden">
                     <div id="progressBar"></div>
                     <div id="progressText">0%</div>
                 </div>
-            </form>
-            <div id="loader" class="loader hidden"></div>
-            <div id="result"></div>
-        </div>
 
-        <footer>
-            <p>&copy; 2024 Aurora Signer. All rights reserved. ps sorry we were down for like 2 months lol</p>
-        </footer>
+                <button type="button" id="customizationMenuButton" class="styled-button">
+                    <i class="fas fa-cogs"></i> Advanced Menu
+                </button>
 
-        <div id="authPopup" class="popup">
-            <div class="popup-content">
-                <span class="close">&times;</span>
-                <h2 id="authTitle">Sign Up</h2>
-                <form id="authForm">
-                    <input type="text" id="auth-username" placeholder="Enter your username" required autocomplete="username">
-                    <input type="password" id="auth-password" placeholder="Enter your password" required autocomplete="current-password">
-                    <div id="privacyPolicyAgreement">
-                        <input type="checkbox" id="agreePrivacyPolicy" required>
-                        <label for="agreePrivacyPolicy">I have read and agree to the <a href="/privacyandpolicy">Privacy Policy</a></label>
+                <div id="customizationMenuModal" class="modal hidden">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h2>Customization Menu</h2>
+                        <div class="card">
+                            <label for="cyan_name">New App Name</label>
+                            <input type="text" name="cyan_name" id="cyan_name" class="styled-input" placeholder="Enter new app name">
+                        </div>
+
+                        <!-- Modify Version -->
+                        <div class="card">
+                            <label for="cyan_version">New Version</label>
+                            <input type="text" name="cyan_version" id="cyan_version" class="styled-input" placeholder="Enter new version">
+                        </div>
+
+                        <!-- Modify Bundle ID -->
+                        <div class="card">
+                            <label for="cyan_bundle_id">New Bundle ID</label>
+                            <input type="text" name="cyan_bundle_id" id="cyan_bundle_id" class="styled-input" placeholder="com.example.newid">
+                        </div>
+
+                        <!-- Minimum OS -->
+                        <div class="card">
+                            <label for="cyan_minimum">Minimum OS Version</label>
+                            <input type="text" name="cyan_minimum" id="cyan_minimum" class="styled-input" placeholder="e.g. 12.0">
+                        </div>
+
+                        <!-- Change Icon -->
+                        <div class="card">
+                            <label for="cyan_icon">New Icon</label>
+                            <div class="custom-file-input">
+                                <input type="file" name="cyan_icon" id="cyan_icon" accept=".png,.jpg,.jpeg">
+                                <label for="cyan_icon">Choose Icon File</label>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <label class="overwrite-checkbox-container">
+                                <input type="checkbox" id="overwriteCheckbox" class="custom-checkbox">
+                                Overwrite existing files
+                            </label>
+                        </div>
+
+                        <!-- Compression Level -->
+                        <div class="card">
+                            <label for="cyan_compress_level">Compression Level</label>
+                            <select name="cyan_compress_level" id="cyan_compress_level" class="styled-select">
+                                <option value="">(Default 6)</option>
+                                <option value="0">0</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                            </select>
+                        </div>
                     </div>
-                    <button type="submit" id="authSubmit">Sign Up</button>
-                </form>
-                <p id="authToggle">Already have an account? <a href="#">Login</a></p>
-            </div>
-        </div>
-
-        <div id="adminPanel" class="admin-panel hidden">
-            <h2>Admin Panel</h2>
-            <form id="adminSearchForm">
-                <input type="text" id="adminUserSearch" placeholder="Search users...">
+                </div>
             </form>
-            <div id="adminUserList"></div>
-        </div>
+        </main>
+            <div id="authPopup" class="popup">
+                <div class="popup-content">
+                    <span class="close">&times;</span>
+                    <h2 id="authTitle">Sign Up</h2>
+                    <form id="authForm">
+                        <input type="text" id="auth-username" placeholder="Enter your username" required autocomplete="username">
+                        <input type="password" id="auth-password" placeholder="Enter your password" required autocomplete="current-password">
+                        <i class="fas fa-eye" id="toggleAuthPassword" style="position: absolute; right: -300px; top: 110px;"></i>
+                        <div id="privacyPolicyAgreement">
+                            <input type="checkbox" id="agreePrivacyPolicy" required>
+                            <label for="agreePrivacyPolicy">I have read and agree to the <a href="/legal.html">Privacy Policy</a></label>
+                        </div>
+                        <button type="submit" id="authSubmit">Sign Up</button>
+                    </form>
+                    <p id="authToggle">Already have an account? <a href="#">Login</a></p>
+                </div>
+            </div>
 
-        <script src="database.js?v=<?php echo time(); ?>"></script>
-        <script src="script.js"></script>
-        <script src="admin.js?v=<?php echo time(); ?>"></script>
-    </body>
+    <div id="adminPanel" class="admin-panel hidden">
+        <h2>Admin Panel</h2>
+        <form id="adminSearchForm">
+            <input type="text" id="adminUserSearch" placeholder="Search users...">
+        </form>
+        <div id="adminUserList"></div>
+    </div>
+
+    <script src="js/database.js?v=<?php echo time(); ?>"></script>
+    <script src="js/admin.js?v=<?php echo time(); ?>"></script>
+    <script src="js/aurora.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>
